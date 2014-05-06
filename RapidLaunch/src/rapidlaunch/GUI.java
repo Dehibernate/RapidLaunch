@@ -1,0 +1,489 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package rapidlaunch;
+
+import java.awt.Desktop;
+import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.commons.collections4.map.MultiValueMap;
+import com.melloware.jintellitype.*;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
+
+/**
+ *
+ * @author Dehibernate
+ */
+public class GUI extends javax.swing.JFrame implements HotkeyListener  {
+
+    private MultiValueMap<String, String> mm = new MultiValueMap<>();
+    private Trie trie = new Trie();
+
+   public class rlFile {
+
+        public String path;
+
+        public rlFile(String p) {
+           
+            path = p;
+        }
+
+        @Override
+        public String toString() {
+            return path;
+        }
+        
+      
+        
+    }
+    
+    
+    /**
+     * Creates new form GUI
+     */
+    public GUI() {
+        initComponents();
+        lblStatus.setText("");
+        //this.setState(Frame.ICONIFIED);
+        dispose();
+        Dimension ss = Toolkit.getDefaultToolkit().getScreenSize();
+        this.setLocation(ss.width/2-this.getSize().width/2, ss.height/2-this.getSize().height/2);
+        
+        initGlobalHotkey();
+        
+        //new Settings().setVisible(true);
+    }
+
+    private void initGlobalHotkey() {
+        JIntellitype.getInstance();
+//        if (JIntellitype.checkInstanceAlreadyRunning("RapidLaunch")) {
+//            System.out.println("An instance of this application is already running");
+//            System.exit(1);
+//        }
+        
+        JIntellitype.getInstance().registerHotKey(1,JIntellitype.MOD_SHIFT,(int) ' ' );
+        JIntellitype.getInstance().registerHotKey(2,0,KeyEvent.VK_ESCAPE);
+        JIntellitype.getInstance().addHotKeyListener(this);
+    }
+    
+    public void onHotKey(int aIdentifier){
+        if(aIdentifier == 1){
+            System.out.println("Showing Frame! Hotkey 1 pressed!");
+            //this.setState(Frame.NORMAL);
+            this.setVisible(true);
+             
+            this.toFront();
+        }
+        else if (aIdentifier ==2){
+        System.out.println("Hiding Frame! Hotkey 2 pressed!");
+        this.setVisible(false);
+    }
+    }
+
+    private void openFolder(String string) {
+        //listf(new File(string));
+
+
+        //Opens a folder or file
+        try {
+            Desktop desktop = Desktop.getDesktop();
+            desktop.open(new File(string));
+        } catch (IOException ex) {
+            Logger.getLogger(RapidLaunch.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void trieToMap() {
+        for (String s : trie.indices) {
+            String path = trie.getPath(s);
+            System.out.println(path);
+
+            String name = path.substring(path.lastIndexOf("\\") + 1, path.length());
+            store(name.toLowerCase(), path);
+        }
+    }
+
+    public class Folder {
+
+        public String name, path;
+
+        public Folder(String n, String p) {
+            name = n;
+            path = p;
+        }
+
+        @Override
+        public String toString() {
+            return name + " = " + path;
+        }
+    }
+
+    public void listf(File f) {
+        if (f.isDirectory() && f != null) {
+            //Do Stuff Here
+            String path = f.getAbsolutePath();
+            //String name = path.substring(path.lastIndexOf("\\") + 1, path.length());
+            //store(name.toLowerCase(), path);
+            if (!path.contains("$")) {
+                String i = trie.add(path);
+                System.out.println(i);
+                System.out.println(path);
+                trie.indices.add(i);
+                // System.out.println(path.substring(path.lastIndexOf("\\") + 1, path.length()) + " ==== " + f.getAbsolutePath());
+
+                if (f.listFiles() != null) {
+                    for (File f1 : f.listFiles()) {
+                        listf(f1);
+                    }
+                }
+            }
+        }
+    }
+
+    public void store(String name, String path) {
+        name.replace("\\", "");
+        for (int i = 0; i <= name.length(); i++) {
+            mm.put(name.substring(0, i), path);
+        }
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        txtSearch = new javax.swing.JTextField();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        listOutput = new javax.swing.JList();
+        btnSave = new javax.swing.JButton();
+        btnSearch = new javax.swing.JButton();
+        lblStatus = new javax.swing.JLabel();
+        btnLoad = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("RapidLaunch");
+
+        txtSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtSearchActionPerformed(evt);
+            }
+        });
+        txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtSearchKeyPressed(evt);
+            }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtSearchKeyReleased(evt);
+            }
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtSearchKeyTyped(evt);
+            }
+        });
+
+        listOutput.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                listOutputMouseClicked(evt);
+            }
+        });
+        jScrollPane2.setViewportView(listOutput);
+
+        btnSave.setText("Save");
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
+
+        btnSearch.setText("Search");
+        btnSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchActionPerformed(evt);
+            }
+        });
+
+        lblStatus.setText("A");
+
+        btnLoad.setText("Load");
+        btnLoad.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLoadActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 393, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(txtSearch)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnSearch)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnSave)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnLoad))
+                    .addComponent(lblStatus, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnSave)
+                    .addComponent(btnSearch)
+                    .addComponent(btnLoad))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 242, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(6, 6, 6))
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void txtSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchActionPerformed
+        try {
+            String text = txtSearch.getText().toLowerCase().trim();
+            if (!text.equals("")) {
+                listOutput.setListData(mm.getCollection(text).toArray());
+            } else {
+                listOutput.setListData(new Object[0]);
+            }
+        } catch (java.lang.NullPointerException e) {
+            listOutput.setListData(new Object[0]);
+        }
+    }//GEN-LAST:event_txtSearchActionPerformed
+
+    private void txtSearchKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchKeyPressed
+    }//GEN-LAST:event_txtSearchKeyPressed
+
+    private void listOutputMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listOutputMouseClicked
+        if (evt.getButton() == MouseEvent.BUTTON1 && evt.getClickCount() == 2) {
+            openFolder((String) listOutput.getSelectedValue());
+        }
+    }//GEN-LAST:event_listOutputMouseClicked
+
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        save();
+    }//GEN-LAST:event_btnSaveActionPerformed
+    public void loadMM() {
+        try {
+
+            File file = new File("filename.txt");
+
+            // if file doesnt exists, then create it
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+
+            FileReader fw = new FileReader(file.getAbsoluteFile());
+            BufferedReader bw = new BufferedReader(fw);
+
+
+            // bw.write(content);
+            mm.clear();
+
+            while (true) {
+                String path = bw.readLine();
+                if (path == null || path.length() == 0) {
+                    break;
+                }
+                String name = path.substring(path.lastIndexOf("\\") + 1, path.length());
+                store(name.toLowerCase(), path);
+            }
+
+            bw.close();
+
+            System.out.println("Done");
+            lblStatus.setText(String.format("File successfully loaded. File size is: %d bytes", file.length()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void load() {
+        try {
+            File file = new File("filename.txt");
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+
+            FileInputStream fout = new FileInputStream(file.getAbsoluteFile());
+            ObjectInputStream oos = new ObjectInputStream(fout);
+            trie = (Trie) oos.readObject();
+            System.out.println("Done");
+            lblStatus.setText(String.format("File successfully read. File size is: %d bytes", file.length()));
+            trieToMap();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void saveMM() {
+        try {
+            String content = "This is the content to write into file";
+
+            File file = new File("filename.txt");
+
+            // if file doesnt exists, then create it
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+
+            FileWriter fw = new FileWriter(file.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fw);
+
+
+            // bw.write(content);
+
+            for (Object value : mm.values()) {
+                bw.write((String) value);
+                bw.newLine();
+            }
+
+            bw.close();
+
+            System.out.println("Done");
+            lblStatus.setText(String.format("File successfully saved. File size is: %d bytes", file.length()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void save() {
+        try {
+            String content = "This is the content to write into file";
+
+            File file = new File("filename.txt");
+
+            // if file doesnt exists, then create it
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            FileOutputStream fout = new FileOutputStream(file.getAbsoluteFile());
+            ObjectOutputStream oos = new ObjectOutputStream(fout);
+            oos.writeObject(trie);
+
+
+            System.out.println("Done");
+            lblStatus.setText(String.format("File successfully saved. File size is: %d bytes", file.length()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
+        lblStatus.setText("Scanning directories. Please Wait...");
+        listf(new File("C:\\"));
+        //listf(new File("D:\\Downloads"));
+        for (int i = 0; i < 15; i++) {
+            System.out.println("==========================================================");
+        }
+        trieToMap();
+
+        lblStatus.setText("Scan complete.");
+    }//GEN-LAST:event_btnSearchActionPerformed
+
+    private void btnLoadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadActionPerformed
+        load();        // TODO add your handling code here:
+    }//GEN-LAST:event_btnLoadActionPerformed
+
+    private void txtSearchKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchKeyTyped
+    }//GEN-LAST:event_txtSearchKeyTyped
+
+    private void txtSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchKeyReleased
+        //System.out.println(mm.keySet());
+        try {
+            String text = txtSearch.getText().toLowerCase().trim();
+            if (!text.equals("")) {
+                Object[] p = mm.getCollection(text).toArray();
+                Arrays.sort(p);
+                listOutput.setListData(p);
+
+
+            } else {
+                listOutput.setListData(new Object[0]);
+            }
+        } catch (java.lang.NullPointerException e) {
+            listOutput.setListData(new Object[0]);
+        }
+    }//GEN-LAST:event_txtSearchKeyReleased
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new GUI().setVisible(true);
+            }
+        });
+    }
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnLoad;
+    private javax.swing.JButton btnSave;
+    private javax.swing.JButton btnSearch;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JLabel lblStatus;
+    private javax.swing.JList listOutput;
+    private javax.swing.JTextField txtSearch;
+    // End of variables declaration//GEN-END:variables
+}
